@@ -80,7 +80,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             new_nodes.append(node)
         
         if delim_count%2 != 0:
-            raise Exception("Invalid Markdown syntax")
+            raise Exception("Invalid Markdown syntax:",node)
     
     return new_nodes
 

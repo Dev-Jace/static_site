@@ -53,9 +53,14 @@ class LeafNode(HTMLNode):
 
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):
+        if children is not None and not isinstance(children, (list, tuple)):
+            children = [children]
+        super().__init__(tag, None, children, props)
+
+    def __init__2(self, tag, children, props=None): #my code
         super().__init__( tag, None, children, props)
 
-    def to_html(self):
+    def to_html2(self):
         rtn_str = ""
         if type(self.tag) != str:
             self.__repr__()
@@ -63,7 +68,27 @@ class ParentNode(HTMLNode):
         if self.children == None:
             raise Exception("children invalid")
         rtn_str += f'<{self.tag}>'
-        for child in self.children:
-            rtn_str += child.to_html()
+        if isinstance(self.children, (list, tuple)):
+            for child in self.children:
+                rtn_str += child.to_html()
+        else:
+            rtn_str += self.children.to_html()
         rtn_str += f'</{self.tag}>'
+        return rtn_str
+
+    def to_html(self): #my code
+        rtn_str = ""
+        if type(self.tag) != str:
+            self.__repr__()
+            raise Exception("Tag invalid")
+        if self.children == None:
+            raise Exception("children invalid")
+        rtn_str += f'<{self.tag}>'
+        #print(f"Type of children: {type(self.children)}")
+        #print(f"Children: {self.children}")
+        #print("\n")
+        for child in self.children:
+            #print("\n\n",child) #added to help Identify the problem
+            rtn_str += child.to_html()
+        rtn_str += f'</{self.tag}>\n'
         return rtn_str

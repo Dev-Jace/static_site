@@ -17,7 +17,50 @@ def markdown_to_blocks(markdown):
 
     return txt_blocks
 
-def block_to_block_type(block):
+#taken from lesson solutions and modified \/
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_olist = "ordered list"
+block_type_ulist = "unordered list"
+def block_to_block_type(block): 
+    lines = block.split("\n")
+
+    #if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
+        #return block_type_heading
+    if "# " in block:
+        block_type = f"heading-{block.count("#")}"
+        return block_type
+    if len(lines) > 1 and lines[0].startswith("```") and lines[-1].startswith("```"):
+        return block_type_code
+    if block.startswith(">"):
+        for line in lines:
+            if not line.startswith(">"):
+                return block_type_paragraph
+        return block_type_quote
+    if block.startswith("* "):
+        for line in lines:
+            if not line.startswith("* "):
+                return block_type_paragraph
+        return block_type_ulist
+    if block.startswith("- "):
+        for line in lines:
+            if not line.startswith("- "):
+                return block_type_paragraph
+        return block_type_ulist
+    if block.startswith("1. "):
+        i = 1
+        for line in lines:
+            if not line.startswith(f"{i}. "):
+                return block_type_paragraph
+            i += 1
+        return block_type_olist
+    return block_type_paragraph
+#taken from lesson solutions and modified /\
+
+
+def block_to_block_type2(block): # need to fix unordered list
     #paragraph
     #heading(s)
     #code
@@ -27,15 +70,20 @@ def block_to_block_type(block):
     block_type = None
     if "# " in block:
         block_type = f"heading-{block.count("#")}"
-    elif "```" in block:
+        return block_type
+    if "```" in block:
         if block[0:3] == "```" and block[-3:] == "```":
             block_type = "code"
-    elif block[0] == ">":
+            return block_type
+    if block[0] == ">":
         block_type = "quote"
-    elif block[0] == "*" or block[0] == "-":
+        return block_type
+
+    if block[0] == "*" or block[0] == "-":
+        return "unordered list"
         if (block.count("*") == (block.count("\n")+1)) or (block.count("-") == (block.count("\n")+1)):
             block_type = "unordered list"
-    elif block[0:2] == "1.":
+    if block[0:2] == "1.":
         lines = block.split("\n")
         i = 1
         for line in lines:
@@ -43,13 +91,23 @@ def block_to_block_type(block):
                 return "unordered list"
             i += 1
         block_type = "ordered list"
-    else:
-        block_type = "paragraph"
+        return block_type
+    
+    block_type = "paragraph"
 
     return block_type
 
 ################
 
+def markdown_to_html_nodes(markdown):
+    
+    blocks = markdown_to_blocks(markdown)
+    children = []
+
+    for block in blocks:
+        children.append(block_to_HTML_node(block))
+
+    return children
 
 def markdown_to_html_node(markdown):
     
@@ -92,7 +150,7 @@ def paragraph_block_to_HTML_node(block):
     return ParentNode(tag="p", children=child)
 
 def code_block_to_HTML_node(block):
-    code_text = LeafNode(tag="code", value= block[5:-4])
+    code_text = LeafNode(tag="code", value= block[4:-4])
     return ParentNode(tag="pre",children=code_text)
 
 def quote_block_to_HTML_node(block):
